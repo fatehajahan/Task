@@ -1,51 +1,54 @@
 import React, { useState } from 'react';
 import signUpImg from '../../assets/signUp.png';
 import { FaEyeSlash, FaEye } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify'
 import axios from 'axios'
 
 const SignUp = () => {
+    const navigate = useNavigate()
     const [userData, setUserData] = useState({
         name: "",
         email: "",
         password: "",
         confirmPassword: ""
     })
-    
+
     const handleChange = (e) => {
         setUserData({
             ...userData, [e.target.name]: e.target.value
         })
     }
-    
+
     const handleSubmit = (e) => {
-        e.preventDefault(); 
-        
+        e.preventDefault();
+
         if (!userData.name || !userData.email || !userData.password || !userData.confirmPassword) {
             return toast.error("Please fill all the fields")
         }
-        
+
         if (userData.password !== userData.confirmPassword) {
             return toast.error("Passwords do not match")
         }
-        if(userData.email)
-        
-        console.log(userData, "userdata")
+        if (userData.email)
+
+            console.log(userData, "userdata")
         axios.post("http://localhost:3000/api/v1/users/registration", userData)
             .then((res) => {
                 toast.success(res.data.message)
                 console.log('reg done')
-                
                 setUserData({
                     name: "",
                     email: "",
                     password: "",
                     confirmPassword: ""
                 })
+                setTimeout(() => {
+                    navigate("/login")
+                }, 1000)
             }).catch((error) => {
                 console.log(error)
-                
+
                 if (error.response && error.response.data && error.response.data.message) {
                     toast.error(error.response.data.message)
                 } else {
@@ -56,7 +59,7 @@ const SignUp = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    
+
     return (
         <div className="flex h-screen font-poppins">
             <ToastContainer

@@ -2,12 +2,77 @@ import React, { useState } from 'react';
 import loginImg from '../../assets/login.png';
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
 
 const Login = () => {
-    const [showPassword, setShowPassword] = useState(false);
+    const [userData, setUserData] = useState({
+        email: "",
+        password: "",
+    })
+    
+    const handleChange = (e) => {
+        setUserData({
+            ...userData, [e.target.name]: e.target.value
+        })
+    }
+    
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        console.log(userData, "userdata");
+        if (!userData.email || !userData.password) {
+            return toast.error("Please fill all the fields")
+        }
+        
+        axios.post("http://localhost:3000/api/v1/users/login", userData, {
+            withCredentials: true,
+        })
+            .then((res) => {
+                if (res.data.error || res.data.message?.includes('Invalid') || res.data.message?.includes('not found')) {
+                    toast.error(res.data.error || res.data.message);
+                    return;
+                }
+                
+                toast.success(res.data.message || "Login successful!");
+                console.log("You've logged in");
+                console.log(res.data.user);
+                
+                setUserData({
+                    email: "",
+                    password: "",
+                });
+                
+            })
+            .catch((error) => {
+                console.log("Login error:", error);
+                console.log("Error response:", error.response);
+                
+                if (error.response && error.response.data && error.response.data.message) {
+                    toast.error(error.response.data.message);
+                } else {
+                    toast.error("Login failed. Please try again.");
+                }
+            });
+    };
 
+    const [showPassword, setShowPassword] = useState(false);
+    
     return (
         <div className="flex h-screen font-poppins">
+            <ToastContainer
+                position="top-right"
+                autoClose={1500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
             {/* Left Side */}
             <div className="w-1/2 md:block hidden">
                 <img src={loginImg} alt="Login" className="h-full w-full object-cover" />
@@ -22,11 +87,14 @@ const Login = () => {
                         Welcome Back, Please Enter your Details to Log In.
                     </p>
 
-                    {/* inputs */}
-                    <form className="space-y-4">
+                    {/* Input Fields */}
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="text-sm font-medium block mb-1">Email Address</label>
                             <input
+                                onChange={handleChange}
+                                name="email"
+                                value={userData.email}
                                 type="email"
                                 className="w-full p-3 border border-gray-300 rounded"
                                 placeholder="Enter your email address"
@@ -36,6 +104,9 @@ const Login = () => {
                         <div className="relative">
                             <label className="text-sm font-medium block mb-1">Password</label>
                             <input
+                                onChange={handleChange}
+                                name="password"
+                                value={userData.password}
                                 type={showPassword ? 'text' : 'password'}
                                 className="w-full p-3 border border-gray-300 rounded pr-10"
                                 placeholder="**************"
@@ -58,12 +129,14 @@ const Login = () => {
                             </Link>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="w-full bg-[#60e5ae] hover:bg-green-500 transition text-black font-semibold p-3 rounded cursor-pointer"
-                        >
-                            Log In
-                        </button>
+                        <div>
+                            <button
+                                type="submit"
+                                className="w-full bg-[#60e5ae] hover:bg-green-500 transition text-black font-semibold p-3 rounded cursor-pointer"
+                            >
+                                Log In
+                            </button>
+                        </div>
                     </form>
 
                     {/* OR Line */}
@@ -75,7 +148,7 @@ const Login = () => {
 
                     <Link to="/">
                         <p className="text-center text-sm">
-                            Don’t have an account?
+                            Don't have an account?
                             <span className="text-black font-semibold cursor-pointer hover:underline">
                                 Sign Up
                             </span>
