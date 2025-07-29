@@ -2,13 +2,76 @@ import React, { useState } from 'react';
 import signUpImg from '../../assets/signUp.png';
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link } from 'react-router-dom';
-
+import { Bounce, ToastContainer, toast } from 'react-toastify'
+import axios from 'axios'
 
 const SignUp = () => {
+    const [userData, setUserData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: ""
+    })
+    
+    const handleChange = (e) => {
+        setUserData({
+            ...userData, [e.target.name]: e.target.value
+        })
+    }
+    
+    const handleSubmit = (e) => {
+        e.preventDefault(); 
+        
+        if (!userData.name || !userData.email || !userData.password || !userData.confirmPassword) {
+            return toast.error("Please fill all the fields")
+        }
+        
+        if (userData.password !== userData.confirmPassword) {
+            return toast.error("Passwords do not match")
+        }
+        if(userData.email)
+        
+        console.log(userData, "userdata")
+        axios.post("http://localhost:3000/api/v1/users/registration", userData)
+            .then((res) => {
+                toast.success(res.data.message)
+                console.log('reg done')
+                
+                setUserData({
+                    name: "",
+                    email: "",
+                    password: "",
+                    confirmPassword: ""
+                })
+            }).catch((error) => {
+                console.log(error)
+                
+                if (error.response && error.response.data && error.response.data.message) {
+                    toast.error(error.response.data.message)
+                } else {
+                    toast.error("Registration failed. Please try again.")
+                }
+            })
+    }
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    
     return (
         <div className="flex h-screen font-poppins">
+            <ToastContainer
+                position="top-right"
+                autoClose={1500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
             {/* Left Side */}
             <div className="w-1/2 md:block hidden">
                 <img src={signUpImg} alt="Sign Up" className="h-full w-full object-cover" />
@@ -24,10 +87,13 @@ const SignUp = () => {
                     </p>
 
                     {/* Input Fields */}
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                         <div>
                             <label className="text-sm font-medium block mb-1">Full Name</label>
                             <input
+                                onChange={handleChange}
+                                name='name'
+                                value={userData.name}
                                 className="w-full p-3 border border-gray-300 rounded"
                                 placeholder="Enter your full name"
                             />
@@ -36,6 +102,10 @@ const SignUp = () => {
                         <div>
                             <label className="text-sm font-medium block mb-1">Email Address</label>
                             <input
+                                onChange={handleChange}
+                                name='email'
+                                value={userData.email}
+                                type="email"
                                 className="w-full p-3 border border-gray-300 rounded"
                                 placeholder="Enter your email address"
                             />
@@ -44,6 +114,9 @@ const SignUp = () => {
                         <div className="relative">
                             <label className="text-sm font-medium block mb-1">Password</label>
                             <input
+                                onChange={handleChange}
+                                name='password'
+                                value={userData.password}
                                 type={showPassword ? 'text' : 'password'}
                                 className="w-full p-3 border border-gray-300 rounded pr-10"
                                 placeholder="**************"
@@ -59,6 +132,9 @@ const SignUp = () => {
                         <div className="relative">
                             <label className="text-sm font-medium block mb-1">Confirm Password</label>
                             <input
+                                onChange={handleChange}
+                                name='confirmPassword'
+                                value={userData.confirmPassword}
                                 type={showConfirm ? 'text' : 'password'}
                                 className="w-full p-3 border border-gray-300 rounded pr-10"
                                 placeholder="Retype password"
