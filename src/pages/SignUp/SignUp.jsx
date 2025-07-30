@@ -6,7 +6,6 @@ import { Bounce, ToastContainer, toast } from 'react-toastify'
 import axios from 'axios'
 
 const SignUp = () => {
-    const url = import.meta.env.VITE_APP_URL
     const navigate = useNavigate()
     const [userData, setUserData] = useState({
         name: "",
@@ -21,7 +20,7 @@ const SignUp = () => {
         })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!userData.name || !userData.email || !userData.password || !userData.confirmPassword) {
@@ -32,9 +31,9 @@ const SignUp = () => {
             return toast.error("Passwords do not match")
         }
         if (userData.email)
-
             console.log(userData, "userdata")
-        axios.post(`${url}/users/registration`, userData)
+        await axios.post("http://localhost:3000/api/v1/users/registration", userData)
+        
             .then((res) => {
                 toast.success(res.data.message)
                 console.log('reg done')
@@ -52,9 +51,7 @@ const SignUp = () => {
 
                 if (error.response && error.response.data && error.response.data.message) {
                     toast.error(error.response.data.message)
-                } else {
-                    toast.error("Registration failed. Please try again.")
-                }
+                } 
             })
     }
 

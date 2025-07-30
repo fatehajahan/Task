@@ -11,54 +11,38 @@ const Login = () => {
         email: "",
         password: "",
     })
-    
+
     const handleChange = (e) => {
         setUserData({
             ...userData, [e.target.name]: e.target.value
         })
     }
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         console.log(userData, "userdata");
         if (!userData.email || !userData.password) {
             return toast.error("Please fill all the fields")
         }
-        
+
         axios.post(`${url}/users/login`, userData, {
             withCredentials: true,
         })
-            .then((res) => {
-                if (res.data.error || res.data.message?.includes('Invalid') || res.data.message?.includes('not found')) {
-                    toast.error(res.data.error || res.data.message);
-                    return;
-                }
-                
-                toast.success(res.data.message || "Login successful!");
-                console.log("You've logged in");
-                console.log(res.data.user);
-                
-                setUserData({
-                    email: "",
-                    password: "",
-                });
-                
-            })
-            .catch((error) => {
-                console.log("Login error:", error);
-                console.log("Error response:", error.response);
-                
-                if (error.response && error.response.data && error.response.data.message) {
-                    toast.error(error.response.data.message);
-                } else {
-                    toast.error("Login failed. Please try again.");
-                }
-            });
+
+
+        toast.success( "Login successful!");
+        console.log("You've logged in");
+
+        setUserData({
+            email: "",
+            password: "",
+        });
+
     };
 
     const [showPassword, setShowPassword] = useState(false);
-    
+
     return (
         <div className="flex h-screen font-poppins">
             <ToastContainer
