@@ -1,10 +1,62 @@
 import React from 'react';
+import { useState } from 'react';
+import { Bounce, toast, ToastContainer } from 'react-toastify'
 import forgotPass from '../../assets/forgotPass.png';
-import { FaRegClock } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaRegClock } from 'react-icons/fa';
+import axios from 'axios';
 
 const ResendPassword = () => {
+  const url = import.meta.env.VITE_APP_URL
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [email, setEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleReset = async () => {
+    if (!email || !newPassword || !confirmPassword) {
+      toast.error("All fields are required.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${url}/forgotPassword/resendPassword`,
+        {
+          email,
+          newPassword,
+          confirmPassword,
+        }
+      );
+
+      toast.success("Password has been reset successfully.");
+      setEmail('');
+      setNewPassword('');
+      setConfirmPassword('');
+
+    } catch (err) {
+      toast.error("Internal Server Error. Please try again.");
+    }
+  }
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 pb-10 relative">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Bounce}
+      />
       <img
         src={forgotPass}
         alt="Forgot Password"
@@ -28,25 +80,47 @@ const ResendPassword = () => {
         <div className="max-w-xl mx-auto text-left">
           <label className="text-sm font-medium block mb-1">Email Address</label>
           <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded mb-4"
             placeholder="m32220@gmail.com"
           />
 
-          <label className="text-sm font-medium block mb-1">Enter New Password</label>
-          <input
-            type="password"
-            className="w-full p-3 border border-gray-300 rounded mb-4"
-            placeholder="**************"
-          />
+          <div className="relative">
+            <label className="text-sm font-medium block mb-1">Enter New Password</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded mb-4"
+              placeholder="**************"
+            />
+            <div
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[42px] text-gray-500 cursor-pointer"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </div>
+          </div>
 
-          <label className="text-sm font-medium block mb-1">Confirm Password</label>
-          <input
-            type="password"
-            className="w-full p-3 border border-gray-300 rounded mb-6"
-            placeholder="Retype password"
-          />
+          <div className="relative">
+            <label className="text-sm font-medium block mb-1">Confirm Password</label>
+            <input
+              type={showConfirm ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded mb-6"
+              placeholder="Retype password"
+            />
+            <div
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-3 top-[42px] text-gray-500 cursor-pointer"
+            >
+              {showConfirm ? <FaEyeSlash /> : <FaEye />}
+            </div>
+          </div>
 
-          <button className="w-full bg-green-400 text-white p-3 rounded hover:bg-green-500 transition font-semibold">
+          <button onClick={handleReset} className="w-full bg-green-400 text-white p-3 rounded hover:bg-green-500 transition font-semibold cursor-pointer">
             Reset Password
           </button>
         </div>
@@ -56,3 +130,76 @@ const ResendPassword = () => {
 };
 
 export default ResendPassword;
+
+
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { Bounce, toast, ToastContainer } from 'react-toastify';
+
+// const ResendPassword = () => {
+//   const [email, setEmail] = useState('');
+//   const [newPassword, setNewPassword] = useState('');
+//   const [confirmPassword, setConfirmPassword] = useState('');
+
+//   const handleReset = async () => {
+//     if (!email || !newPassword || !confirmPassword) {
+//       toast.error('All fields are required');
+//       return;
+//     }
+
+//     if (newPassword !== confirmPassword) {
+//       toast.error('Passwords do not match');
+//       return;
+//     }
+
+//     try {
+//       const response = await axios.post(
+//         'http://localhost:3000/api/v1/forgotPassword/resendPassword',
+//         {
+//           email,
+//           newPassword,
+//           confirmPassword,
+//         }
+//       );
+
+//       toast.success(response.data.message);
+//       // setEmail('');
+//       // setNewPassword('');
+//       // setConfirmPassword('');
+//     } catch (err) {
+//       if (err.response && err.response.data && err.response.data.error) {
+//         toast.error(err.response.data.error);
+//       } else {
+//         toast.error('Something went wrong');
+//       }
+//       console.error(err);
+//     }
+//   };
+
+//   return (
+//     <div className="..."> {/* your layout here */}
+//       {/* Input fields */}
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={1500}
+//         hideProgressBar={false}
+//         newestOnTop={false}
+//         closeOnClick={false}
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//         theme="dark"
+//         transition={Bounce}
+//       />
+//       <input className='border border-black' placeholder='email' value={email} onChange={(e) => setEmail(e.target.value)} />
+//       <input className='border border-black' placeholder='pass' type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+//       <input className='border border-black' placeholder='conPass' type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+
+//       <button onClick={handleReset}>Reset Password</button>
+//     </div>
+//   );
+// };
+
+// export default ResendPassword;

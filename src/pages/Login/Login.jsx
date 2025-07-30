@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 
 const Login = () => {
+    const url = import.meta.env.VITE_APP_URL
     const [userData, setUserData] = useState({
         email: "",
         password: "",
@@ -25,7 +26,7 @@ const Login = () => {
             return toast.error("Please fill all the fields")
         }
         
-        axios.post("http://localhost:3000/api/v1/users/login", userData, {
+        axios.post(`${url}/users/login`, userData, {
             withCredentials: true,
         })
             .then((res) => {
